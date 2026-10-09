@@ -55,6 +55,7 @@ def walk(content, in_table, out):
 
 
 d = json.load(open(sys.argv[1], encoding="utf-8"))
+d = d.get("content", d)  # 有的连接器把 Document 包在 content 里
 tab = find_tab(d, sys.argv[2] if len(sys.argv) > 2 else None)
 if tab is None:
     sys.exit("tab not found")

@@ -5,7 +5,9 @@ inline **bold** and `code`. A table must follow a plain paragraph.
 In table cells, '<br>' is a line break, and a cell made only of space-separated `code` spans
 is split one span per line.
 
-Usage: python3 md2gdocs.py <in.md> <tabId> <out.json>
+Usage: python3 md2gdocs.py <in.md> <tabId> <out.json> [start] [split]
+  start: where content lands (default 1 = empty tab). With 'split', start is the endIndex of the paragraph
+  to append after (insert in the middle of a tab); without it, start must be an empty paragraph.
 """
 import json
 import re
@@ -119,9 +121,16 @@ def parse_blocks(md):
     return blocks
 
 
-def build(md, tab_id):
+def build(md, tab_id, start=1, split=False):
+    """Build requests. Content lands at `start`.
+
+    Default: `start` is an empty paragraph (index 1 of an empty tab, or what is left after deleting a range).
+    split=True: `start` is the endIndex of an existing paragraph; a paragraph break is inserted before its
+    newline and the new content follows it, so text before and after stays untouched.
+    """
     reqs = []
-    idx = 1
+    idx = start
+    first = [True]
     seg = []
     after_table = False
 
@@ -145,7 +154,7 @@ def build(md, tab_id):
 
     # namedStyleType 会把文字样式重置为该命名样式的默认值（Arial 11），
     # 所以同一段文字的段落样式必须先于文字样式发送
-    order = {"insertText": 0, "updateParagraphStyle": 1, "createParagraphBullets": 2, "updateTextStyle": 3}
+    order = {"insertText": 0, "deleteParagraphBullets": 0.5, "updateParagraphStyle": 1, "createParagraphBullets": 2, "updateTextStyle": 3}
 
     def flush():
         n0 = len(reqs)
@@ -159,7 +168,14 @@ def build(md, tab_id):
             return None
         full = "\n".join(t for _, t, _ in seg)
         start = idx
-        reqs.append({"insertText": {"location": {"index": start, "tabId": tab_id}, "text": full}})
+        if first[0] and split:
+            reqs.append({"insertText": {"location": {"index": start - 1, "tabId": tab_id}, "text": "\n" + full}})
+        else:
+            reqs.append({"insertText": {"location": {"index": start, "tabId": tab_id}, "text": full}})
+        if first[0] and idx > 1:
+            # 插入的段落会继承所在段落的列表、缩进、边框、底色，先清掉
+            reqs.append({"deleteParagraphBullets": {"range": rng(start, start + u16(full))}})
+        first[0] = False
         bounds, pos = [], start
         for kind, t, spans in seg:
             n = u16(t)
@@ -168,9 +184,12 @@ def build(md, tab_id):
         end = bounds[-1][2]
         # 基础样式：正文字体、字号、颜色、行距
         ts(start, end - 1, {"weightedFontFamily": {"fontFamily": BODY_FONT}, "fontSize": pt(10.5),
-                            "foregroundColor": INK}, "weightedFontFamily,fontSize,foregroundColor")
+                            "foregroundColor": INK, "bold": False, "italic": False},
+           "weightedFontFamily,fontSize,foregroundColor,bold,italic")
         ps(start, end, {"namedStyleType": "NORMAL_TEXT", "lineSpacing": 150, "spaceAbove": pt(0),
-                        "spaceBelow": pt(7)}, "namedStyleType,lineSpacing,spaceAbove,spaceBelow")
+                        "spaceBelow": pt(7), "indentStart": pt(0), "indentFirstLine": pt(0)},
+           "namedStyleType,lineSpacing,spaceAbove,spaceBelow,indentStart,indentFirstLine,"
+           "borderTop,borderBottom,borderLeft,shading")
         if after_table:
             ps(bounds[0][1], bounds[0][2], {"spaceAbove": pt(10)}, "spaceAbove")
             after_table = False
@@ -321,6 +340,8 @@ def build(md, tab_id):
 
 if __name__ == "__main__":
     md = open(sys.argv[1], encoding="utf-8").read()
-    reqs = build(md, sys.argv[2])
+    start = int(sys.argv[4]) if len(sys.argv) > 4 else 1
+    split = len(sys.argv) > 5 and sys.argv[5] == "split"
+    reqs = build(md, sys.argv[2], start, split)
     json.dump(reqs, open(sys.argv[3], "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
     print(len(reqs), "requests", len(json.dumps(reqs, ensure_ascii=False, separators=(",", ":"))), "chars")
