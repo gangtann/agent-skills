@@ -187,8 +187,8 @@ def build(md, tab_id, start=1, split=False):
                             "foregroundColor": INK, "bold": False, "italic": False},
            "weightedFontFamily,fontSize,foregroundColor,bold,italic")
         ps(start, end, {"namedStyleType": "NORMAL_TEXT", "lineSpacing": 150, "spaceAbove": pt(0),
-                        "spaceBelow": pt(7), "indentStart": pt(0), "indentFirstLine": pt(0)},
-           "namedStyleType,lineSpacing,spaceAbove,spaceBelow,indentStart,indentFirstLine,"
+                        "spaceBelow": pt(7), "indentStart": pt(0), "indentFirstLine": pt(0), "indentEnd": pt(0)},
+           "namedStyleType,lineSpacing,spaceAbove,spaceBelow,indentStart,indentFirstLine,indentEnd,"
            "borderTop,borderBottom,borderLeft,shading")
         if after_table:
             ps(bounds[0][1], bounds[0][2], {"spaceAbove": pt(10)}, "spaceAbove")
