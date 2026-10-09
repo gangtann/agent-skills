@@ -4,7 +4,7 @@ Personal [Agent Skills](https://agentskills.io) (SKILL.md format). Works with Cl
 
 | Skill | What it does |
 |---|---|
-| [gdoc-explainer](gdoc-explainer/) | Write explainer / study-note Google Docs (one topic per tab, self-test questions at the end) with a consistent designed layout via the Docs API: restricted markdown → batchUpdate requests, then font tally + PDF render to verify. |
+| [gdoc-explainer](gdoc-explainer/) | Write explainer / study-note Google Docs (one topic per tab) with a consistent designed layout via the Docs API: restricted markdown → batchUpdate requests, then font tally + PDF render to verify. |
 
 ## Install
 
