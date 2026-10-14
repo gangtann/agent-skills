@@ -29,7 +29,21 @@ const [VW, VH] = mode === 'cover' ? (FMT === 'portrait' ? [1080, 1920] : [1440, 
   } else if (mode === 'stills') { fs.mkdirSync(out, { recursive: true }); for (const t of a3.split(',').map(Number)) await shot(t, path.join(out, `t${t.toFixed(2)}.png`)); }
   else if (mode === 'shots') {
     fs.mkdirSync(out, { recursive: true });
-    for (const id of TL.order) { const [s, e] = TL.shots[id]; for (const k of [.35, .85]) await shot(s + (e - s) * k, path.join(out, `${id}_${Math.round(k * 100)}.png`)); }
+    const warn = [];
+    for (const id of TL.order) {
+      const [s, e] = TL.shots[id];
+      for (const k of [.35, .85]) {
+        await shot(s + (e - s) * k, path.join(out, `${id}_${Math.round(k * 100)}.png`));
+        // 自动检查当前可见的画面文字：是否出安全区、字号是否低于下限
+        for (const m of await p.evaluate(() => [...document.querySelectorAll('#layer .tx')].filter(e => e.offsetParent && +e.style.opacity > .5 && e.textContent.trim()).flatMap(e => {
+          const rg = document.createRange(); rg.selectNodeContents(e); const r = rg.getBoundingClientRect(), [x0, y0, x1, y1] = FMT.safe, fsz = parseFloat(getComputedStyle(e).fontSize), t = e.textContent.trim().slice(0, 12), out = [];
+          if (r.left < x0 - 2 || r.top < y0 - 2 || r.right > x1 + 2 || r.bottom > y1 + 2) out.push(`出安全区 [${[r.left, r.top, r.right, r.bottom].map(Math.round)}]「${t}」`);
+          if (fsz < FMT.minFont) out.push(`字号 ${fsz}px < ${FMT.minFont}「${t}」`);
+          return out;
+        }))) warn.push(`${id}@${Math.round(k * 100)}%  ${m}`);
+      }
+    }
+    console.log(warn.length ? `文字检查：${warn.length} 处问题\n  ` + [...new Set(warn)].join('\n  ') : '文字检查：全部在安全区内，字号达标');
   } else if (mode === 'video') {
     const FPS = 30, from = Number(a3 || 0), to = Number(a4 || TL.total);
     const ff = spawn(ffmpeg, ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-i', '-', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '17', '-preset', 'medium', '-movflags', '+faststart', out], { stdio: ['pipe', 'ignore', 'inherit'] });

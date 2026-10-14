@@ -13,7 +13,7 @@ else:
 assert len(durs) == len(spoken), (len(durs), len(spoken))
 
 def card(sid): return sid == 'TITLE' or re.fullmatch(r'CH\d+', sid) is not None
-CARD_LEN = {'TITLE': 3.6}          # 章节卡默认 3.0
+CARD_LEN = {'TITLE': 3.6}          # 章节卡默认 2.2（只有一行字的画面不宜久留）
 GAP_LINE, GAP_SHOT, LEAD = 0.32, 0.75, 1.6
 TAIL = 3.2      # 最后一句后的停留
 SOURCES = 4.5   # 片尾资料来源卡
@@ -25,7 +25,7 @@ for item in S:
     if card(sid):
         if prev and not card(prev):
             t += GAP_SHOT - GAP_LINE
-        d = CARD_LEN.get(sid, 3.0)
+        d = CARD_LEN.get(sid, 2.2)
         shots[sid] = [round(t, 3), round(t + d, 3)]
         t += d + 0.25
         prev = sid

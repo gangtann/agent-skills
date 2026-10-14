@@ -16,6 +16,8 @@
   .b{font:500 40px/1.45 "PingFang SC";text-shadow:0 2px 20px rgba(0,0,0,.7)}
   .b2{font:500 32px/1.45 "PingFang SC";color:#c9d3e3;text-shadow:0 2px 16px rgba(0,0,0,.7)}
   .s{font:400 22px/1.5 "PingFang SC";color:#8b95a8;letter-spacing:1px}
+  /* 横屏在手机上会缩小：来源小字、kicker 加大 */
+  .landscape .s{font-size:28px;color:#9aa4b6}.landscape .k{font-size:30px}.landscape .b2{font-size:34px}
   .en{font:400 30px/1.3 "DIN Alternate";color:#9cbce6;letter-spacing:4px}
   .am{color:#ffb35a}.co{color:#9cbce6}
   #sub{position:absolute;text-align:center;font:500 42px/1.4 "PingFang SC";
@@ -30,7 +32,7 @@
 <script src="../vendor/three.min.js"></script>
 <script src="lib.js"></script>
 <script>
-  document.documentElement.style.cssText = `--w:${W}px;--h:${H}px`;
+  document.documentElement.style.cssText = `--w:${W}px;--h:${H}px`; document.documentElement.classList.add(FORMAT);
   for (const c of document.querySelectorAll('canvas')) { c.width = W; c.height = H; }
   Object.assign(document.getElementById('sub').style, { left: FMT.sub.left + 'px', width: FMT.sub.width + 'px', top: FMT.sub.top + 'px', fontSize: FMT.sub.size + 'px' });
 </script>

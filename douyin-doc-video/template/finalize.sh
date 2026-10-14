@@ -17,4 +17,5 @@ mkdir -p "$dest/素材"
 cp "${name}_成片.mp4" "$dest/"
 [ -f 封面.png ] && cp 封面.png "$dest/${name}_封面.png"
 for f in 01_资料笔记.md 02_文章.md 03_分镜脚本.md; do [ -f "$f" ] && cp "$f" "$dest/"; done
+[ -f footage/ledger.json ] && python3 footage.py credits "$dest/素材授权.md"   # 用了实拍素材就附授权台账
 ls -lh "$dest"

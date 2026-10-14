@@ -41,11 +41,14 @@ const skyTop = (ctx, col, a) => {   // 3D 场景顶部的天空渐隐，增加�
 };
 const screenCol = t => ['#9fc4ff', '#ffc98a', '#c6b2ff', '#8fe0d0'][Math.floor(t / .85) % 4];   // 手机屏幕光轮换
 
-function chapter(num, title, warm) {
+// 章节卡：编号 + 标题 + 一条生长的线。bg 传实拍素材（vid 规格）时用它打底（推荐，避免「空背景 + 一行字」），否则用光斑背景
+function chapter(num, title, warm, bg) {
   return {
+    vid: bg && { kb: [1.04, 1.1], grade: warm ? 'warm' : 'night', ...bg },
     draw(ctx, lt) {
+      if (bg) scrimX(ctx, 560, 1300, .72); else {
       vgrad(ctx, warm ? [[0, '#0b0806'], [.5, '#171009'], [1, '#07050a']] : [[0, '#04070d'], [.5, '#0a1322'], [1, '#04060b']]);
-      bokeh(ctx, num * 31 + 3, 14, lt, { rmin: 40, rmax: 140, a: .10, drift: 10, cols: warm ? [C.amber, C.warm] : [C.cold, C.blue, C.amber] });
+      bokeh(ctx, num * 31 + 3, 14, lt, { rmin: 40, rmax: 140, a: .10, drift: 10, cols: warm ? [C.amber, C.warm] : [C.cold, C.blue, C.amber] }); }
       const e = eo(seg(lt, .3, 1.4));
       ctx.strokeStyle = rgba(warm ? C.amber : C.cold, .6); ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(210, 560); ctx.lineTo(210 + 320 * e, 560); ctx.stroke();
@@ -57,6 +60,9 @@ function chapter(num, title, warm) {
   };
 }
 
+// 实拍素材：python3 footage.py add/prep 之后，任何镜头都可以加 vid 打底，例如
+//   S05: { vid: { src: 'night-junction', in: 1.5, kb: [1.02, 1.12], pan: [0, 0, -40, 0] }, draw(ctx) { scrimX(ctx, 500, 1200, .65); }, txt: [...] }
+//   章节卡：CH2: chapter(2, '标题', false, { src: 'night-junction', in: 3 })
 const SH = {
   // 钩子：开头 3 秒内一个强画面 + 一句戳心的问题（这里用 3D 夜城摇臂 + 窗光做示意）
   S01: {
@@ -88,11 +94,10 @@ const SH = {
     ]
   },
   // 收尾金句：一句记得住的话，居中，宋体
+  // 收尾不要只剩「一句话 + 一个光点」（qa_frames.py 会报空画面）：用黎明城市或实拍做底
   S03: {
-    draw(ctx, lt) {
-      vgrad(ctx, [[0, '#020309'], [.7, '#070c18'], [1, '#0b1424']]);
-      glow(ctx, W / 2, 640, 140, C.amber, .45); glow(ctx, W / 2, 640, 26, '#fff2d8', .9);
-    },
+    gl: 'dawn',
+    draw(ctx, lt) { skyTop(ctx, '#02040a', .7); ctx.fillStyle = 'rgba(3,6,12,.45)'; ctx.fillRect(0, 0, W, H); },
     txt: [{ h: '一句记得住的话，<br>分成两行。', c: 'q', x: 0, y: 300, w: W, a: 'center', at: [0, .2] }], fadeOut: .8
   },
   // 片尾资料来源（build_timeline.py 自动追加 SRC 镜头）
@@ -100,7 +105,7 @@ const SH = {
     draw(ctx) { vgrad(ctx, [[0, '#03050a'], [1, '#060a12']]); },
     txt: [
       { h: '资料来源', c: 'k', x: 180, y: 120, at: .2 },
-      { h: '来源一<br>来源二', c: 's', x: 180, y: 180, w: 1500, at: .4, css: 'font-size:24px;line-height:1.9;color:#a8b2c4;column-count:2;column-gap:80px' },
+      { h: '来源一<br>来源二', c: 's', x: 180, y: 180, w: 1500, at: .4, css: 'font-size:28px;line-height:1.8;color:#a8b2c4;column-count:2;column-gap:80px' },
     ], fadeOut: .6
   },
 };

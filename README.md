@@ -5,7 +5,7 @@ Personal [Agent Skills](https://agentskills.io) (SKILL.md format). Works with Cl
 | Skill | What it does |
 |---|---|
 | [gdoc-explainer](gdoc-explainer/) | Write explainer / study-note Google Docs (one topic per tab) with a consistent designed layout via the Docs API: restricted markdown → batchUpdate requests, then font tally + PDF render to verify. |
-| [douyin-doc-video](douyin-doc-video/) | Make documentary-grade landscape (16:9, 1920×1080) knowledge videos for Douyin: sourced research notes → 3000–5000 字 article → shot-by-shot storyboard → frame-by-frame render (canvas + three.js in headless Chrome) with 云希 narration, synthesized score/SFX, safe-area QA, a 4:3 cover (portrait 9:16 still available via `format.json`), and publishing through the Douyin desktop client. |
+| [douyin-doc-video](douyin-doc-video/) | Make documentary-grade landscape (16:9, 1920×1080) knowledge videos for Douyin: sourced research notes → 3000–5000 字 article → shot-by-shot storyboard → frame-by-frame render (canvas + three.js in headless Chrome) over graded free-to-use stock footage (Pexels, Pixabay, Coverr, Mixkit Free, Freesound CC0, with a licence ledger) with 云希 narration, synthesized score/SFX, safe-area and empty-frame QA, a 4:3 cover (portrait 9:16 still available via `format.json`), and publishing through the Douyin desktop client. |
 
 ## Install
 
