@@ -2,6 +2,8 @@
 const City = (() => {
   let renderer, scene, camera, bldMat, towerMat, sky, skyCtx, skyTex, lamps, cars, carData, ground, hemi, sun, built = false;
   const R = rng(20261013);
+  // 横屏视野更宽：城市铺得更大，竖直视角收窄（各镜头的 fov 按竖屏设计，横屏乘 FOVK），让城市边缘不进画面
+  const SP = 34, N = W > H ? 40 : 26, FOVK = W > H ? .72 : 1;
 
   function winTex(seed, pLit, palette, dark = '#000000', cols = 32, rows = 64) {
     const c = document.createElement('canvas'); c.width = 512; c.height = 1024;
@@ -66,7 +68,7 @@ const City = (() => {
     hemi = new THREE.HemisphereLight(0x3a5a8a, 0x05070c, 0.5); scene.add(hemi);
     sun = new THREE.DirectionalLight(0xffb070, 0); sun.position.set(-600, 120, -400); scene.add(sun);
     // 楼群
-    const list = [], SP = 34, N = 26;
+    const list = [];
     for (let i = -N; i <= N; i++) for (let j = -N; j <= N; j++) {
       if (Math.abs(i) <= 0 && Math.abs(j) <= 0) continue;
       const nb = 1 + Math.floor(R() * 2);
@@ -116,7 +118,7 @@ const City = (() => {
     skyCtx.fillStyle = g; skyCtx.fillRect(0, 0, 4, 512); skyTex.needsUpdate = true;
   }
   function updateCars(t) {
-    const a = cars.geometry.attributes.position, L = 26 * 34;
+    const a = cars.geometry.attributes.position, L = N * SP;
     carData.forEach((c, i) => {
       let s = ((c.s + c.dir * c.v * t + L) % (2 * L)) - L;
       if (c.axis) a.setXYZ(i, s, 1.2, c.lane); else a.setXYZ(i, c.lane, 1.2, s);
@@ -157,7 +159,7 @@ const City = (() => {
       const a = .9 - p * .3;
       camera.position.set(Math.sin(a) * 820, 260, Math.cos(a) * 820); camera.lookAt(-Math.sin(a) * 200, 110, -Math.cos(a) * 200); camera.fov = 46;
     }
-    camera.updateProjectionMatrix();
+    camera.fov *= FOVK; camera.updateProjectionMatrix();
     renderer.render(scene, camera);
   }
   return { init, render };

@@ -17,11 +17,11 @@ function box(id) {
   });
   return boxes[id] = b;
 }
-// 字幕：长句按标点切成 ≤17 字的段，按字数分配时长
+// 字幕：长句按标点切成 ≤FMT.sub.max 字的段（横屏 20，竖屏 17），按字数分配时长
 function chunks(text) {
   const parts = text.split(/(?<=[，。；：、？])/).filter(Boolean), out = [];
   let cur = '';
-  for (const p of parts) { if ((cur + p).replace(/[，。；：、]/g, '').length > 17 && cur) { out.push(cur); cur = p; } else cur += p; }
+  for (const p of parts) { if ((cur + p).replace(/[，。；：、]/g, '').length > FMT.sub.max && cur) { out.push(cur); cur = p; } else cur += p; }
   if (cur) out.push(cur);
   return out.map(s => s.replace(/[，。；、：]$/, ''));
 }

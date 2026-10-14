@@ -2,9 +2,9 @@
 <html><head><meta charset="utf-8">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{width:1080px;height:1920px;background:#05080f;overflow:hidden}
-  canvas{position:absolute;left:0;top:0;width:1080px;height:1920px}
-  #layer,#subs{position:absolute;left:0;top:0;width:1080px;height:1920px;pointer-events:none}
+  html,body{width:var(--w);height:var(--h);background:#05080f;overflow:hidden}
+  canvas{position:absolute;left:0;top:0;width:var(--w);height:var(--h)}
+  #layer,#subs{position:absolute;left:0;top:0;width:var(--w);height:var(--h);pointer-events:none}
   .tx{position:absolute;color:#eef2f7;opacity:0;will-change:opacity,transform,filter}
   .k{font:600 28px/1.3 "PingFang SC";letter-spacing:7px;color:#ffb35a}
   .h{font:900 88px/1.22 "Songti SC";letter-spacing:2px;text-shadow:0 4px 40px rgba(0,0,0,.6)}
@@ -18,17 +18,22 @@
   .s{font:400 22px/1.5 "PingFang SC";color:#8b95a8;letter-spacing:1px}
   .en{font:400 30px/1.3 "DIN Alternate";color:#9cbce6;letter-spacing:4px}
   .am{color:#ffb35a}.co{color:#9cbce6}
-  #sub{position:absolute;left:110px;width:820px;top:1312px;text-align:center;font:500 42px/1.4 "PingFang SC";
+  #sub{position:absolute;text-align:center;font:500 42px/1.4 "PingFang SC";
        color:#f4f6fa;text-shadow:0 2px 6px rgba(0,0,0,.9),0 0 24px rgba(0,0,0,.75);letter-spacing:1px;white-space:nowrap}
 </style></head>
 <body>
-<canvas id="gl" width="1080" height="1920"></canvas>
-<canvas id="c2" width="1080" height="1920"></canvas>
+<canvas id="gl"></canvas>
+<canvas id="c2"></canvas>
 <div id="layer"></div>
-<canvas id="fx" width="1080" height="1920"></canvas>
+<canvas id="fx"></canvas>
 <div id="subs"><div id="sub"></div></div>
 <script src="../vendor/three.min.js"></script>
 <script src="lib.js"></script>
+<script>
+  document.documentElement.style.cssText = `--w:${W}px;--h:${H}px`;
+  for (const c of document.querySelectorAll('canvas')) { c.width = W; c.height = H; }
+  Object.assign(document.getElementById('sub').style, { left: FMT.sub.left + 'px', width: FMT.sub.width + 'px', top: FMT.sub.top + 'px', fontSize: FMT.sub.size + 'px' });
+</script>
 <script src="city.js"></script>
 <script src="shots.js"></script>
 <script>window.TL=__TIMELINE__;</script>

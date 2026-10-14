@@ -1,5 +1,12 @@
 // 通用绘图工具
-const W = 1080, H = 1920;
+// 画幅：横屏 1920×1080（默认）或竖屏 1080×1920，由工程里的 format.json 决定，rec.js 通过 ?fmt= 传进来
+// safe = 画面文字安全区 [x0, y0, x1, y1]；sub = 字幕框（固定位置）与每段最多字数
+const FORMATS = {
+  landscape: { w: 1920, h: 1080, safe: [140, 90, 1700, 760], sub: { top: 784, left: 310, width: 1300, size: 52, max: 20 } },
+  cover: { w: 1440, h: 1080, safe: [100, 100, 1340, 980], sub: { top: 0, left: 0, width: 0, size: 0, max: 0 } },   // 横封面 4:3（web/cover.html）
+  portrait: { w: 1080, h: 1920, safe: [72, 300, 900, 1240], sub: { top: 1312, left: 110, width: 820, size: 42, max: 17 } },
+};
+const FORMAT = new URLSearchParams(location.search).get('fmt') || 'landscape', FMT = FORMATS[FORMAT], W = FMT.w, H = FMT.h;
 const C = {
   night: '#05080f', deep: '#0b1424', navy: '#12213a', blue: '#3a5a8a', cold: '#9cbce6',
   ice: '#d7e6fa', amber: '#ffb35a', warm: '#ff8c42', ember: '#e2572b', text: '#eef2f7', mute: '#8b95a8'

@@ -7,6 +7,7 @@
 import sys, json, re, os, subprocess, numpy as np
 from scipy.io import wavfile
 SR = 48000
+SIZE = '1080x1920' if os.path.exists('format.json') and json.load(open('format.json')).get('format') == 'portrait' else '1920x1080'
 lines = [l['text'] for l in json.load(open('script.json')) if l['text']]
 cmd = sys.argv[1]
 if cmd == 'prep':
@@ -17,7 +18,7 @@ if cmd == 'prep':
     json.dump(slots, open('tts_slots.json', 'w'))
     f = lambda x: f'{int(x // 3600):02d}:{int(x % 3600 // 60):02d}:{int(x % 60):02d},{int(round(x % 1 * 1000)) % 1000:03d}'
     open('剪映_配音稿.srt', 'w').write(''.join(f'{i + 1}\n{f(a)} --> {f(b)}\n{s}\n\n' for i, ((a, b), s) in enumerate(zip(slots, lines))))
-    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'lavfi', '-i', f'color=black:s=1080x1920:r=30:d={t + 1:.2f}',
+    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'lavfi', '-i', f'color=black:s={SIZE}:r=30:d={t + 1:.2f}',
                     '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '剪映_底片.mp4'], check=True)
     print('ok', len(lines), 'lines,', round(t + 1, 1), 's')
 elif cmd == 'split':
