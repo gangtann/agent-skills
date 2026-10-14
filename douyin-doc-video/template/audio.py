@@ -88,8 +88,9 @@ def sec_warm(a, b, last=False):
 SEC = dict(dark=sec_dark, pulse=sec_pulse, drone=sec_drone, warm=sec_warm)
 
 chs = sorted([k for k in sh if re.fullmatch(r'CH\d+', k)], key=lambda k: int(k[2:]))
-bounds = [0.0] + [sh[c][0] for c in chs] + [TL['total'] + 1]
-assert len(P.MOODS) == len(bounds) - 1, f'MOODS needs {len(bounds) - 1} entries (prologue + {len(chs)} chapters)'
+# 短片没有章节卡时，sound_plan.SPLITS = ['S05'] 可以在指定镜头处换段（换情绪）
+bounds = sorted([0.0] + [sh[c][0] for c in chs] + [sh[k][0] for k in getattr(P, 'SPLITS', [])]) + [TL['total'] + 1]
+assert len(P.MOODS) == len(bounds) - 1, f'MOODS needs {len(bounds) - 1} entries (prologue + {len(chs)} chapters + {len(getattr(P, "SPLITS", []))} splits)'
 for i, mood in enumerate(P.MOODS):
     a, b = bounds[i], bounds[i + 1]
     (sec_warm(a, b, last=i == len(P.MOODS) - 1) if mood == 'warm' else SEC[mood](a, b))
