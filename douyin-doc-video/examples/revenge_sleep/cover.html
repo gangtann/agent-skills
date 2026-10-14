@@ -1,0 +1,13 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0}html,body{width:1080px;height:1920px;background:#05080f;overflow:hidden}
+canvas{position:absolute;left:0;top:0}
+.k{position:absolute;left:96px;top:390px;font:600 34px "PingFang SC";letter-spacing:12px;color:#ffb35a}
+.h{position:absolute;left:90px;top:450px;font:900 112px/1.22 "Songti SC";color:#eef2f7;text-shadow:0 6px 50px rgba(0,0,0,.8)}
+.s{position:absolute;left:98px;top:1590px;font:500 34px "PingFang SC";color:#c9d3e3;letter-spacing:2px}
+</style></head><body><canvas id="c" width="1080" height="1920"></canvas>
+<div class="k">报 复 性 熬 夜</div><div class="h">凌晨两点<br>你在舍不得什么</div>
+<div class="s">夜里偷回来的时间，被谁拿走了</div>
+<script src="lib.js"></script><script src="shots.js"></script>
+<script>const x=document.getElementById('c').getContext('2d');x.translate(0,190);bedroom(x,1.0,4,{scale:1.06,phone:1,moon:.25,clock:''});
+x.setTransform(1,0,0,1,0,0);const g=x.createLinearGradient(0,300,0,900);g.addColorStop(0,'rgba(4,7,13,.85)');g.addColorStop(1,'rgba(4,7,13,0)');x.fillStyle=g;x.fillRect(0,300,1080,600);
+grainVignette(x,0.3,.05);</script></body></html>

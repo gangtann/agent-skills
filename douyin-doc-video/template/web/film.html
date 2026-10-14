@@ -1,0 +1,36 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1920px;background:#05080f;overflow:hidden}
+  canvas{position:absolute;left:0;top:0;width:1080px;height:1920px}
+  #layer,#subs{position:absolute;left:0;top:0;width:1080px;height:1920px;pointer-events:none}
+  .tx{position:absolute;color:#eef2f7;opacity:0;will-change:opacity,transform,filter}
+  .k{font:600 28px/1.3 "PingFang SC";letter-spacing:7px;color:#ffb35a}
+  .h{font:900 88px/1.22 "Songti SC";letter-spacing:2px;text-shadow:0 4px 40px rgba(0,0,0,.6)}
+  .h2{font:900 64px/1.3 "Songti SC";letter-spacing:1px;text-shadow:0 4px 30px rgba(0,0,0,.6)}
+  .q{font:700 58px/1.4 "Songti SC";text-shadow:0 4px 30px rgba(0,0,0,.7)}
+  .n{font:400 176px/1 "DIN Alternate";color:#ffb35a;letter-spacing:-2px;text-shadow:0 0 60px rgba(255,160,70,.35)}
+  .n2{font:400 104px/1 "DIN Alternate";color:#ffb35a;text-shadow:0 0 40px rgba(255,160,70,.3)}
+  .n3{font:400 64px/1 "DIN Alternate";color:#eef2f7}
+  .b{font:500 40px/1.45 "PingFang SC";text-shadow:0 2px 20px rgba(0,0,0,.7)}
+  .b2{font:500 32px/1.45 "PingFang SC";color:#c9d3e3;text-shadow:0 2px 16px rgba(0,0,0,.7)}
+  .s{font:400 22px/1.5 "PingFang SC";color:#8b95a8;letter-spacing:1px}
+  .en{font:400 30px/1.3 "DIN Alternate";color:#9cbce6;letter-spacing:4px}
+  .am{color:#ffb35a}.co{color:#9cbce6}
+  #sub{position:absolute;left:110px;width:820px;top:1312px;text-align:center;font:500 42px/1.4 "PingFang SC";
+       color:#f4f6fa;text-shadow:0 2px 6px rgba(0,0,0,.9),0 0 24px rgba(0,0,0,.75);letter-spacing:1px;white-space:nowrap}
+</style></head>
+<body>
+<canvas id="gl" width="1080" height="1920"></canvas>
+<canvas id="c2" width="1080" height="1920"></canvas>
+<div id="layer"></div>
+<canvas id="fx" width="1080" height="1920"></canvas>
+<div id="subs"><div id="sub"></div></div>
+<script src="../vendor/three.min.js"></script>
+<script src="lib.js"></script>
+<script src="city.js"></script>
+<script src="shots.js"></script>
+<script>window.TL=__TIMELINE__;</script>
+<script src="main.js"></script>
+</body></html>
