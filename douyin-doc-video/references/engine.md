@@ -11,14 +11,16 @@
 | web/shots.js | 每个镜头的画面（`draw`）和画面文字（`txt`），API 写在文件头 | **改** |
 | shots.py | 分镜元数据（场景/运镜/画面/文字/声音/转场）+ CHAPTERS | **改** |
 | sound_plan.py | 每章音乐情绪 + 环境音 + 点状音效 | **改** |
-| web/cover.html | 封面（横屏 1440×1080，4:3） | **改** |
+| web/cover.html | 横封面（1440×1080，4:3），底图 web/cover_bg.jpg | **改** |
+| web/cover_v.html | 竖封面（1080×1440，3:4），横屏视频发布时单独上传 | **改** |
+| check_clips.py | 检查每个镜头的实拍素材够不够长 | 不改 |
 | footage.py | 实拍素材：白名单下载 → 授权台账 footage/ledger.json → 转码成全 I 帧片段 footage/<id>.mp4；`credits` 生成 素材授权.md | 不改 |
 | tts.py | 云希逐句配音 → voice/NN.wav + durs.json，打印实测语速 | 不改 |
 | jianying.py | 备选：剪映配音的准备与切分 | 不改 |
-| build_timeline.py | durs.json → timeline.json（句间 .32s，镜头间 .75s，片名卡 3.6s，章节卡 2.2s，开头 1.6s，片尾资料页 4.5s） | 不改 |
+| build_timeline.py | durs.json → timeline.json（句间 .32s，镜头间 .75s，片名卡 3.6s，章节卡 2.2s，开头 1.6s；`--src` 才加 4.5s 片尾资料页） | 不改 |
 | audio.py | 按 timeline 合成配乐和音效 → music.wav / sfx.wav | 不改 |
 | mix.py | 旁白 + 配乐（旁白处压 8dB）+ 音效 → mix.wav | 不改 |
-| rec.js | stills / shots / video / cover 四种渲染 | 不改 |
+| rec.js | stills / shots / video / cover / cover34 五种渲染 | 不改 |
 | web/lib.js, main.js, city.js, film.html | 绘图工具、时间线控制器、3D 城市、页面与文字样式 | 一般不改 |
 | gen_storyboard.py | 生成 03_分镜脚本.md | 不改 |
 | qa_safe.py, sheet.sh | 抽帧安全区检查、镜头联系表 | 不改 |
@@ -46,6 +48,8 @@ node rec.js stills stills/x 83.5,86   # 单独看某几个时间点
 node rec.js video final_silent.mp4
 $PY mix.py
 node rec.js cover 封面.png          # 横屏 4:3 封面（竖屏工程：node rec.js cover 封面.png 300 裁 3:4）
+node rec.js cover34 封面_竖.png     # 横屏工程的 3:4 竖封面（web/cover_v.html）
+python3 check_clips.py              # 配音后：实拍素材够不够长
 $PY qa_frames.py final_silent.mp4 --shots   # 全片空画面/过暗扫描
 $PY qa_safe.py final_silent.mp4 5   # 随机 5 帧 + UI 遮挡区，肉眼检查
 bash finalize.sh <中文名> ~/Desktop/抖音配音素材/<NN_中文名>
@@ -63,7 +67,7 @@ bash finalize.sh <中文名> ~/Desktop/抖音配音素材/<NN_中文名>
 - 3D 城市在横屏下自动铺得更大（N=40），各镜头的 fov 乘 0.72，城市边缘不会进画面。
 - 3D 底：`gl:'night'`，draw 只叠 2D（天空渐隐、压暗、图表）。
 - 实拍底：`vid:{src, in, speed, kb:[1,1.1], pan:[dx0,dy0,dx1,dy1], grade:'night'|'warm'|'doc', dim}`，也可以是带 `t0` 的数组（镜头内硬切）。render 是 async 的，会等视频跳到准确的那一帧（已验证与 ffmpeg 抽帧逐帧一致）。
-- 镜头 id 必须和 script.json、shots.py 一致；章节卡用 `chapter(n,'标题',warm)`；`SRC` 是片尾资料页，自动追加到时间线末尾。
+- 镜头 id 必须和 script.json、shots.py 一致；章节卡用 `chapter(n,'标题',warm)`；`SRC` 是片尾资料页，只有 `build_timeline.py durs.json --src` 时才追加到时间线末尾（默认不加）。
 
 ## 环境
 

@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* 竖封面：node rec.js cover34 封面_竖.png → 1080×1440（3:4）。横屏视频发布时要单独上传一张：
+   抖音会用横封面自动裁出竖封面，常常切掉标题（「报复性熬夜」横屏版就被切掉了「夜」字）。
+   布局：上方压暗放主题词和标题，下方放人物，副标题压在底部暗带上。底图同 cover.html（web/cover_bg.jpg） */
+*{margin:0;padding:0}html,body{width:1080px;height:1440px;background:#05080f;overflow:hidden}
+canvas{position:absolute;left:0;top:0}
+.k{position:absolute;left:100px;top:150px;font:600 40px "PingFang SC";letter-spacing:12px;color:#ffb35a}
+.h{position:absolute;left:92px;top:220px;font:900 132px/1.25 "Songti SC";color:#eef2f7;text-shadow:0 6px 50px rgba(0,0,0,.8)}
+.s{position:absolute;left:100px;top:1300px;font:500 42px "PingFang SC";color:#c9d3e3;letter-spacing:2px;text-shadow:0 2px 20px rgba(0,0,0,.9)}
+</style></head><body><canvas id="c" width="1080" height="1440"></canvas>
+<div class="k">主 题 词</div><div class="h">封面标题<br>第二行<br>第三行？</div>
+<div class="s">副标题：一个数字 <span style="color:#ffb35a">4.4 亿</span></div>
+<script src="lib.js"></script><script src="shots.js"></script>
+<script>
+const x = document.getElementById('c').getContext('2d'), im = new Image();
+const finish = () => {
+  x.globalCompositeOperation = 'screen'; x.fillStyle = '#0e1c33'; x.fillRect(0, 0, 1080, 1440); x.globalCompositeOperation = 'source-over';
+  let g = x.createLinearGradient(0, 0, 0, 860); g.addColorStop(0, 'rgba(4,7,13,.95)'); g.addColorStop(.7, 'rgba(4,7,13,.6)'); g.addColorStop(1, 'rgba(4,7,13,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 1080, 860);
+  g = x.createLinearGradient(0, 1180, 0, 1440); g.addColorStop(0, 'rgba(4,7,13,0)'); g.addColorStop(1, 'rgba(4,7,13,.85)'); x.fillStyle = g; x.fillRect(0, 1180, 1080, 260);
+  // 不用 grainVignette：它按 lib.js 的 W/H（这里是 cover 画幅 1440×1080）画，只盖住上面 1080px，会留一道硬边
+  g = x.createRadialGradient(540, 760, 300, 540, 760, 1000); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.45)');
+  x.fillStyle = g; x.fillRect(0, 0, 1080, 1440); document.title = 'ready';
+};
+im.onload = () => {   // 放大 1.35 倍（2592×1458），左移 1180、下移 140：右侧主体落到画面下半部。换素材时调这两个偏移
+  x.filter = 'brightness(1.25) contrast(1.05) saturate(.9)'; x.drawImage(im, 0, 0, 1920, 1080, -1180, 140, 2592, 1458); x.filter = 'none'; finish();
+};
+im.onerror = () => {   // vgrad 按 W/H 填充，这里画幅不同，手动铺底
+  const g = x.createLinearGradient(0, 0, 0, 1440); g.addColorStop(0, '#04070d'); g.addColorStop(.6, '#0a1322'); g.addColorStop(1, '#04060b'); x.fillStyle = g; x.fillRect(0, 0, 1080, 1440); finish();
+};
+im.src = 'cover_bg.jpg';
+</script></body></html>

@@ -23,8 +23,13 @@
    - 横屏，1080p 以上；
    - 没有可辨认的品牌 logo，没有正脸特写；
    - 光线和色调接近全片（夜景、冷蓝加暖灯）；
-   - 尽量是中国城市（搜 `china`、`shanghai`、`beijing night`、`chinese city`），外国街景要少用，避免「出戏」；
+   - **优先中国城市和中国人**（用户 2026-10-14 要求）：搜 `chongqing night`、`shanghai aerial`、`shenzhen skyline`、`guangzhou metro`、`hangzhou`、`chengdu street`、`asian woman phone bed`。外国街景不要用，搜出来的结果要逐条确认是哪座城市（迪拜、波兹南、首尔都混进来过）；
    - 镜头运动平稳。
+   - **好用的作者**：Pexels 上的 **LayG Traveller** 有成套的中国城市实拍（重庆、上海、深圳、广州、杭州、成都、南宁的夜景、地铁、街道）；**cottonbro studio** 有大量东亚演员的室内场景（卧室刷手机、读书、闹钟）。
+   - **Pexels 搜索**：curl 直接请求会被 403。可以在内置浏览器打开 pexels.com 后，在页面里同源 `fetch('/search/videos/<词>/')` 再用 DOMParser 解析结果，比一页页翻快。文件地址形如 `videos.pexels.com/video-files/<id>/<文件>.mp4`，要按素材自己的 id 过滤，否则会拿到页面里「相关视频」的文件。
+   - **Mixkit** 上的中国题材大多是 Restricted License，不能用。每条都要在页面上确认写的是「Free License」，直链是 `assets.mixkit.co/videos/<id>/<id>-1080.mp4`。
+   - **Pixabay** 有时会弹 Cloudflare「请验证您是真人」，不要替用户点，请用户自己过，或者换站。
+   - 下载后先用 3 帧缩略图确认内容（人脸、logo、警徽之类的标志都要避开；「报复性熬夜」里有一条重庆街景因为拍到警徽弃用）。
 3. **取直链**：Pexels 用 `https://www.pexels.com/download/video/<id>/`（会跳到 videos.pexels.com，默认是原片，4K 通常 15–100MB），作者名在页面上的 `/@作者` 链接里。下载前可以 `curl -sIL` 看一下大小。
 4. **下载并登记**：`python3 footage.py add <直链> --page <素材页> --author 作者 --id 短名`。它会拒绝白名单外的域名，Mixkit 和 Freesound 还会检查协议。
 5. **转码**：`python3 footage.py prep 短名 --ss 2 --t 8`。会裁满画幅、转 30fps、全 I 帧，这样渲染时可以逐帧精确跳转。
@@ -32,12 +37,16 @@
    - 一定要加缓推（kb）或横移（pan），静止的空镜很死。
    - pan 的位移不能超过 (缩放 − 1) × W / 2，否则会露边。
 7. **核对**：先看一帧原片。有的「夜景」素材本身是黑白的，调色加不出颜色，换一条。
+8. **长度**：配音定稿后跑 `python3 check_clips.py`，它会算 in + speed × 镜头时长是否超出素材长度，超出的画面会定格。解决办法：调慢 speed（虚化底的镜头 .35–.7 都看不出来）、提前 in，或者用数组 `vid: [{...}, { t0: 7.2, src: '另一条', ... }]` 在镜头中途硬切。
+9. **倒放**：speed 可以为负，比如把「黄昏→夜」的延时倒放成「夜→天亮」（`in: 35.5, speed: -2.2`）。终点要 ≥ 0。
+10. **肖像**：可辨认的人脸不要出现在负面文案下面（比如「又输了一晚」），可以换成只拍到手和物件的段落。片尾或简介注明「画面中的人物与文中案例无关，仅为氛围示意」。
 
 ## 调色（main.js 的 GRADES）
 
 - `night`（默认）：轻提亮，再用 screen 把黑位抬成藏青 #0e1c33，路灯和车灯的暖色保留。这正是全片「冷蓝底 + 暖色灯光」的配色。
 - `warm`：最后一章（出路）用，黑位偏暖，整体加一点琥珀色。
 - `doc`：白天或室内素材，只做轻度统一。
+- **虚化底**：数据镜头要压一层图表时，可以传自定义 grade 对象：`grade: { f: 'blur(9px) brightness(.5) saturate(.8)', tints: [['#0e1c33', 'screen', 1]] }`。实拍还在动，但不抢图表的戏。
 - **坑**：不要用深色的 soft-light 或 overlay 叠色。夜景本来就暗，会再被压暗一半（实测亮度 28 → 14）。
 
 ## 声音素材

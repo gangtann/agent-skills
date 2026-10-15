@@ -1,0 +1,26 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* 竖封面 1080×1440（3:4）：横屏视频也要单独做一张，抖音自动裁的竖封面会切掉标题。上方压暗放标题，下方留人物 */
+*{margin:0;padding:0}html,body{width:1080px;height:1440px;background:#05080f;overflow:hidden}
+canvas{position:absolute;left:0;top:0}
+.k{position:absolute;left:100px;top:150px;font:600 40px "PingFang SC";letter-spacing:12px;color:#ffb35a}
+.h{position:absolute;left:92px;top:220px;font:900 132px/1.25 "Songti SC";color:#eef2f7;text-shadow:0 6px 50px rgba(0,0,0,.8)}
+.s{position:absolute;left:100px;top:1300px;font:500 42px "PingFang SC";color:#c9d3e3;letter-spacing:2px;text-shadow:0 2px 20px rgba(0,0,0,.9)}
+</style></head><body><canvas id="c" width="1080" height="1440"></canvas>
+<div class="k">报 复 性 熬 夜</div><div class="h">夜里偷回的<br>时间，被谁<br>拿走了？</div>
+<div class="s">凌晨 0–2 点，全国日均 <span style="color:#ffb35a">4.4 亿人</span>在线</div>
+<script src="lib.js"></script><script src="shots.js"></script>
+<script>
+const x = document.getElementById('c').getContext('2d'), im = new Image();
+im.onload = () => {
+  // 底图按 1.35 倍放大（2592×1458），人物落在画面下半部、中间偏右
+  x.filter = 'brightness(1.25) contrast(1.05) saturate(.9)'; x.drawImage(im, 0, 0, 1920, 1080, -1180, 140, 2592, 1458); x.filter = 'none';
+  x.globalCompositeOperation = 'screen'; x.fillStyle = '#0e1c33'; x.fillRect(0, 0, 1080, 1440); x.globalCompositeOperation = 'source-over';
+  let g = x.createLinearGradient(0, 0, 0, 860); g.addColorStop(0, 'rgba(4,7,13,.95)'); g.addColorStop(.7, 'rgba(4,7,13,.6)'); g.addColorStop(1, 'rgba(4,7,13,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 1080, 860);
+  g = x.createLinearGradient(0, 1180, 0, 1440); g.addColorStop(0, 'rgba(4,7,13,0)'); g.addColorStop(1, 'rgba(4,7,13,.85)'); x.fillStyle = g; x.fillRect(0, 1180, 1080, 260);
+  // grainVignette 按 lib.js 的 W/H（横屏 1080 高）画，这里尺寸不同，自己画暗角
+  g = x.createRadialGradient(540, 760, 300, 540, 760, 1000); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.45)');
+  x.fillStyle = g; x.fillRect(0, 0, 1080, 1440); document.title = 'ready';
+};
+im.src = 'cover_bg.jpg';
+</script></body></html>

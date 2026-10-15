@@ -1,22 +1,25 @@
 """根据每句旁白的实测时长生成 timeline.json（画面、字幕、音乐都对齐它）。
-用法: python3 build_timeline.py [durs.json]   # 不给就按 ~285 字/分估算，只用于出预览
+用法: python3 build_timeline.py [durs.json] [--src]   # 不给 durs 就按 ~300 字/分估算，只用于出预览
+  --src：片尾追加资料来源卡 SRC。默认不加（用户 2026-10-14 要求画面上不放出处小字、也不要片尾资料卡；出处放 04_数据核实记录.md 和发布简介）
 script.json 里 text 为空、shot 为 TITLE 或 CH<n> 的条目是片名卡/章节卡（无旁白，固定时长）。
 """
 import json, re, sys
 
+WITH_SRC = '--src' in sys.argv
+ARGS = [a for a in sys.argv[1:] if not a.startswith('--')]
 S = json.load(open('script.json'))
 spoken = [l for l in S if l['text']]
-if len(sys.argv) > 1:
-    durs = json.load(open(sys.argv[1]))
+if ARGS:
+    durs = json.load(open(ARGS[0]))
 else:
-    durs = [0.205 * len(re.findall(r'[一-鿿〇0-9]', l['text'])) + 0.2 for l in spoken]
+    durs = [0.195 * len(re.findall(r'[一-鿿〇0-9]', l['text'])) + 0.2 for l in spoken]
 assert len(durs) == len(spoken), (len(durs), len(spoken))
 
 def card(sid): return sid == 'TITLE' or re.fullmatch(r'CH\d+', sid) is not None
 CARD_LEN = {'TITLE': 3.6}          # 章节卡默认 2.2（只有一行字的画面不宜久留）
 GAP_LINE, GAP_SHOT, LEAD = 0.32, 0.75, 1.6
 TAIL = 3.2      # 最后一句后的停留
-SOURCES = 4.5   # 片尾资料来源卡
+SOURCES = 4.5   # 片尾资料来源卡（--src）
 
 t = LEAD
 lines, shots, k, prev = [], {}, 0, None
@@ -50,8 +53,9 @@ for i, sid in enumerate(order):
         b = shots[sid][1] + TAIL
     shots[sid] = [round(a, 3), round(b, 3)]
 src0 = shots[order[-1]][1]
-shots['SRC'] = [src0, round(src0 + SOURCES, 3)]
-total = round(src0 + SOURCES, 2)
-json.dump(dict(lines=lines, shots=shots, order=order + ['SRC'], total=total),
+if WITH_SRC:
+    shots['SRC'] = [src0, round(src0 + SOURCES, 3)]; order.append('SRC')
+total = round(src0 + (SOURCES if WITH_SRC else 0), 2)
+json.dump(dict(lines=lines, shots=shots, order=order, total=total),
           open('timeline.json', 'w'), ensure_ascii=False, indent=1)
 print('lines', len(lines), 'total', total, 's =', round(total / 60, 2), 'min')

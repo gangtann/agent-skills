@@ -2,6 +2,7 @@
 //   node rec.js stills <out_dir> t1,t2,...        截取指定时间点
 //   node rec.js shots <out_dir>                    每个镜头取 35% 与 85% 两帧
 //   node rec.js video <out.mp4> [from] [to]        渲染视频（30fps，无声）
+//   node rec.js cover34 <out.png>                  渲染 web/cover_v.html → 1080×1440（横屏视频的 3:4 竖封面；抖音自动从横封面裁出的竖封面常常切掉标题）
 //   node rec.js cover <out.png> [cropY]            渲染 web/cover.html。横屏：1440×1080（4:3 横封面）；竖屏：给 cropY 则裁成 1080×1440（3:4）
 // 画幅读工程里的 format.json（{"format":"landscape"|"portrait"}，默认横屏 1920×1080），通过 ?fmt= 传给页面
 const puppeteer = require('puppeteer-core'), ffmpeg = require('ffmpeg-static');
@@ -12,18 +13,20 @@ const tl = fs.existsSync(path.join(__dirname, 'timeline.json')) ? fs.readFileSyn
 fs.writeFileSync(path.join(__dirname, 'web/build.html'), fs.readFileSync(path.join(__dirname, 'web/film.html'), 'utf8').replace('__TIMELINE__', tl));
 const TL = JSON.parse(tl);
 const FMT = (fs.existsSync(path.join(__dirname, 'format.json')) && JSON.parse(fs.readFileSync(path.join(__dirname, 'format.json'), 'utf8')).format) || 'landscape';
-const [VW, VH] = mode === 'cover' ? (FMT === 'portrait' ? [1080, 1920] : [1440, 1080]) : (FMT === 'portrait' ? [1080, 1920] : [1920, 1080]);
+const [VW, VH] = mode === 'cover34' ? [1080, 1440] : mode === 'cover' ? (FMT === 'portrait' ? [1080, 1920] : [1440, 1080]) : (FMT === 'portrait' ? [1080, 1920] : [1920, 1080]);
 (async () => {
   const b = await puppeteer.launch({ executablePath: CHROME, headless: 'new',
     args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist', '--hide-scrollbars', '--allow-file-access-from-files'] });
   const p = await b.newPage();
   p.on('pageerror', e => console.error('PAGE ERROR', e.message)); p.on('console', m => m.type() === 'error' && console.error('console', m.text()));
   await p.setViewport({ width: VW, height: VH, deviceScaleFactor: 1 });
-  const page = mode === 'cover' ? 'web/cover.html' : 'web/build.html';
+  const page = mode === 'cover34' ? 'web/cover_v.html' : mode === 'cover' ? 'web/cover.html' : 'web/build.html';
   await p.goto('file://' + path.join(__dirname, page) + '?fmt=' + (mode === 'cover' && FMT !== 'portrait' ? 'cover' : FMT), { waitUntil: 'load' });
   await p.evaluate(() => document.fonts.ready);
+  if (mode.startsWith('cover')) await p.waitForFunction(() => document.title === 'ready', { timeout: 5000 }).catch(() => {});   // 底图异步加载完才截
   const shot = async (t, f) => { await p.evaluate(t => window.render(t), t); await p.screenshot({ path: f }); };
-  if (mode === 'cover') {
+  if (mode === 'cover34') await p.screenshot({ path: out });
+  else if (mode === 'cover') {
     const y = a3 == null || FMT !== 'portrait' ? null : Number(a3);
     await p.screenshot(y == null ? { path: out } : { path: out, clip: { x: 0, y, width: 1080, height: 1440 } });
   } else if (mode === 'stills') { fs.mkdirSync(out, { recursive: true }); for (const t of a3.split(',').map(Number)) await shot(t, path.join(out, `t${t.toFixed(2)}.png`)); }

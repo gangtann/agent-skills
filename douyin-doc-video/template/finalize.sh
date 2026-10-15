@@ -1,7 +1,7 @@
 #!/bin/bash
 # 合成成片并交付：bash finalize.sh <中文名> <交付目录>
 #   例：bash finalize.sh 报复性熬夜 ~/Desktop/抖音配音素材/03_报复性熬夜
-# 输入：final_silent.mp4（node rec.js video）、mix.wav（mix.py）、封面.png（node rec.js cover）、01/02/03 文档
+# 输入：final_silent.mp4（node rec.js video）、mix.wav（mix.py）、封面.png（node rec.js cover）、封面_竖.png（cover34，可选）、01–04 文档
 # 输出：<名>_成片.mp4（1080p，横屏 1920×1080，-14 LUFS，上传用）、<名>_预览720p.mp4（发给用户看）、封面与文档拷进交付目录
 set -e
 grep -qs portrait format.json && PREVIEW=720:1280 || PREVIEW=1280:720   # 画幅见 format.json，默认横屏
@@ -16,6 +16,7 @@ ffmpeg -y -v error -i "${name}_成片.mp4" -vf "hqdn3d=2:2:4:4,scale=$PREVIEW" -
 mkdir -p "$dest/素材"
 cp "${name}_成片.mp4" "$dest/"
 [ -f 封面.png ] && cp 封面.png "$dest/${name}_封面.png"
-for f in 01_资料笔记.md 02_文章.md 03_分镜脚本.md; do [ -f "$f" ] && cp "$f" "$dest/"; done
+[ -f 封面_竖.png ] && cp 封面_竖.png "$dest/${name}_竖封面.png"   # 横屏视频的 3:4 竖封面（node rec.js cover34）
+for f in 01_资料笔记.md 02_文章.md 03_分镜脚本.md 04_数据核实记录.md; do [ -f "$f" ] && cp "$f" "$dest/"; done
 [ -f footage/ledger.json ] && python3 footage.py credits "$dest/素材授权.md"   # 用了实拍素材就附授权台账
 ls -lh "$dest"

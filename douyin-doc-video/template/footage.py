@@ -5,7 +5,7 @@
         视频 → footage/<id>.mp4：裁满画幅（format.json），30fps，全 I 帧（逐帧精确跳转），无声
         音频 → footage/<id>.wav：48k 立体声
   python3 footage.py list                   列出台账
-  python3 footage.py credits [输出.md]      生成 素材授权.md（交付目录里放一份）
+  python3 footage.py credits [输出.md]      生成 素材授权.md（交付目录里放一份；只列 web/shots.js 里用到的视频）
 白名单（用户 2026-10-14 确认）：Pexels、Pixabay、Coverr（视频，免署名可商用）；Mixkit 只限 Free License；Freesound 只限 CC0。
 需要 PATH 里有 ffmpeg。
 """
@@ -81,8 +81,14 @@ def prep(a):
     print(f'{out}  {dur:.2f}s')
 
 
+def used_ids():   # web/shots.js 里实际引用的素材（台账里下载了但没用上的不进授权表）
+    p = 'web/shots.js'
+    return set(re.findall(r"src: '([\w.-]+)'", open(p).read())) if os.path.exists(p) else None
+
+
 def credits(out):
-    rows = load()
+    rows, used = load(), used_ids()
+    if used is not None: rows = [r for r in rows if r['kind'] != 'video' or r['id'] in used]
     lines = ['# 素材授权台账', '', '本片使用的第三方实拍素材与声音。全部来自用户确认的白名单素材站，协议允许免署名商用；下表留作授权凭证。', '',
              '| # | 素材 | 类型 | 来源页 | 作者 | 协议 | 下载日期 | sha256 |', '|---|---|---|---|---|---|---|---|']
     for i, r in enumerate(rows, 1):
